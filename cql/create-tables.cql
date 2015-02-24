@@ -17,12 +17,16 @@ CREATE TABLE reviews (
   PRIMARY KEY ((user_id), review_time)
 ) WITH CLUSTERING ORDER BY (review_time DESC);
 
-CREATE TABLE user_metadata (
-  user_id bigint PRIMARY KEY,
+CREATE TYPE user_info (
   age int,
   gender text,
   occupation text,
-  zip text
+  zipcode text
+);
+
+CREATE TABLE user_metadata (
+  user_id bigint PRIMARY KEY,
+  info FROZEN <user_info>
 );
 
 CREATE TABLE movie_metadata (
