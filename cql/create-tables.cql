@@ -32,9 +32,7 @@ CREATE TABLE user_metadata (
 CREATE TABLE movie_metadata (
   movie_id bigint PRIMARY KEY,
   title text,
-  theater_release timestamp,
-  video_release timestamp,
-  movie_url text,
+  url text,
   genres set<text>
 );
 

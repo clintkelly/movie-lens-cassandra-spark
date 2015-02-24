@@ -13,6 +13,9 @@ case class ReviewWithMetadata(userId: Long, reviewTime: DateTime, movieId: Long,
 object ImportRatings {
   import com.datastax.spark.connector._
 
+  val genreList = Seq("unknown", "Action", "Adventure", "Animation", "Children's", "Comedy", "Crime", "Documentary",
+  "Drama", "Fantasy", "Film-Noir", "Horror", "Musical", "Mystery", "Romance", "Sci-Fi", "Thriller", "War", "Western")
+
   def writeDenormalizedRatings(userRatingsLines: RDD[String], movieMetadataLines: RDD[String]): Unit = {
 
     // Keys for both will be the movie IDs so that we can get the movie metadata.
@@ -48,8 +51,6 @@ object ImportRatings {
 
     val firstFew = userRatingsWithMetadata.take(10)
     firstFew.foreach(println)
-
-
     userRatingsWithMetadata.saveToCassandra("movies", "reviews")
   }
 
@@ -68,6 +69,31 @@ object ImportRatings {
         "zipcode" -> tokens(4)))
       (userId, userInfo)
     }.saveToCassandra("movies", "user_metadata", SomeColumns("user_id", "info"))
+  }
+
+  def writeMovieMetadata(movieMetadataLines: RDD[String]): Unit = {
+    movieMetadataLines.map { line =>
+      val tokens = line.split("\\|")
+      require(tokens.size == 24, s"Problem with $line")
+
+      val movieId: Long = tokens(0).toLong
+      val title: String = tokens(1)
+      //val theaterDate = tokens(2)
+      //val videoDate = tokens(3)
+      val url: String = tokens(4)
+
+      // Scala poetry!
+      val genres = (genreList, tokens.takeRight(19)).zipped.flatMap { case (genreName: String, zeroOrOne: String) =>
+          require(zeroOrOne == "0" || zeroOrOne == "1")
+          zeroOrOne match {
+            case "0" => None
+            case "1" => Some(genreName)
+          }
+      }
+
+      (movieId, title, url, genres)
+
+    }.saveToCassandra("movies", "movie_metadata", SomeColumns("movie_id", "title", "url", "genres"))
   }
 
 
@@ -97,6 +123,7 @@ object ImportRatings {
 
     writeDenormalizedRatings(userRatingsLines, movieMetadataLines)
     writeUserMetadata(userMetadataLines)
+    writeMovieMetadata(movieMetadataLines)
 
   }
 
