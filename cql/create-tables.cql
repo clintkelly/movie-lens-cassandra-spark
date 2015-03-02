@@ -36,4 +36,15 @@ CREATE TABLE movie_metadata (
   genres set<text>
 );
 
+CREATE TYPE similar_movie (
+  movie_id bigint,
+  movie_title text,
+  similarity double
+);
+
+CREATE TABLE similar_movies (
+  movie_id bigint PRIMARY KEY,
+  movie_title text,
+  similar_movies set< FROZEN<similar_movie> >
+);
 

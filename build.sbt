@@ -4,6 +4,7 @@ lazy val root = (project in file (".")).
     version := "1.0",
     scalaVersion := "2.10.4",
     libraryDependencies += "org.apache.spark" %% "spark-core" % "1.2.1" % "provided",
+    libraryDependencies += "org.apache.spark" %% "spark-mllib" % "1.2.1" % "provided",
     libraryDependencies += "joda-time" % "joda-time" % "2.7",
     libraryDependencies += "com.datastax.spark" %% "spark-cassandra-connector" % "1.2.0-alpha2",
     libraryDependencies += "org.apache.cassandra" % "cassandra-thrift" % "2.1.3",

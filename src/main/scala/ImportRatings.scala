@@ -1,3 +1,4 @@
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
@@ -98,6 +99,8 @@ object ImportRatings {
 
 
   def main(args: Array[String]): Unit = {
+    Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
+    Logger.getLogger("org.eclipse.jetty.server").setLevel(Level.OFF)
 
     // Set up SparkContext.
     val conf = new SparkConf()
